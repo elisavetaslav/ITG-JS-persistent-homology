@@ -1,6 +1,7 @@
 import math
 from fractions import Fraction
 from functools import reduce
+from features.transitions import build_transition_matrix
 
 
 # -----------------------------------------------------------------------
@@ -45,3 +46,37 @@ def compute_global_unit(df):
     unit = gcd_rational(all_durs)
     multiplier = unit.denominator
     return multiplier
+
+
+def normalize_durations(df, multiplier, apply_sqrt=False, inplace=False):
+    """
+    Normalize durations in each part and rebuild transition matrices.
+    INPUT: df - DataFrame with 'parts' column. Each part is a dict containing
+                'pitches', 'durations', 'onsets'.
+           multiplier - int or float, factor to multiply raw durations.
+           apply_sqrt - bool, if True applies sqrt(d * multiplier) instead of d * multiplier.
+           inplace - bool, if True modify df in place, else return a copy.
+    RETURN: None if inplace=True, else DataFrame with normalized durations and
+            updated 'transition_matrix' in each part.
+    """
+    if not inplace:
+        df = df.copy()
+
+    for idx, row in df.iterrows():
+        parts = row.get('parts')
+        if not parts:
+            continue
+        for part in parts:
+            if part is None:
+                continue
+            if apply_sqrt:
+                norm_durs = [math.sqrt(d * multiplier) for d in part['durations']]
+            else:
+                norm_durs = [d * multiplier for d in part['durations']]
+            part['durations'] = norm_durs
+            part['transition_matrix'] = build_transition_matrix(
+                part['pitches'], part['durations'], part['onsets']
+            )
+
+    if not inplace:
+        return df
