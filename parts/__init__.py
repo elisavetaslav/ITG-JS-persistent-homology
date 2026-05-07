@@ -1,3 +1,3 @@
 from .part_extraction import extract_part_sequence, process_midi_file, add_parts_column
-from .maestro_extraction import process_maestro_midi_file, add_parts_column_maestro
+from .maestro_extraction import process_midi_file_piano, add_parts_column_from_midi_path
 from .duration_normalization import compute_global_unit, normalize_durations
