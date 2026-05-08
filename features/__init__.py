@@ -1,5 +1,5 @@
 from .transitions import build_transition_matrix
-from .distances import weighted_js_distance
+from .distances import weighted_js_distance, compute_distance_matrix
 from .distributions import assign_distributions
 from .graph_construction import (
     build_expanded_graph,
@@ -17,6 +17,7 @@ __all__ = [
     'build_expanded_graph',
     'compute_original_distance_matrix',
     'compute_bregman_edge_lengths',
+    'compute_distance_matrix',
     'compute_pure_semantic_edge_lengths',
     'compute_persistence',
     'extract_barcode_stats',

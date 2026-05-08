@@ -34,7 +34,7 @@ def experiment_4(df_valid):
 
     for i, method in enumerate(['orig', 'breg']):
         prefix = method
-        label = "Original method" if method == 'orig' else "Bregman-enhanced"
+        label = "Baseline method" if method == 'orig' else "Weighted_JS"
         ax = axes[0, i]
         for comp in ['Haydn', 'Mozart', 'Beethoven']:
             sub = df_plot[df_plot['composer'] == comp].sort_values('year')

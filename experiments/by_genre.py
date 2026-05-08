@@ -58,13 +58,13 @@ def experiment_1(
 
         plot_pca_and_dispersion(
             X_orig,
-            f"{genre_name.upper()}: Original method",
+            f"{genre_name.upper()}: Baseline method",
             ax1, ax3,
             composers
         )
         plot_pca_and_dispersion(
             X_breg,
-            f"{genre_name.upper()}: Bregman-enhanced",
+            f"{genre_name.upper()}: Weighted_JS",
             ax2, ax4,
             composers
         )

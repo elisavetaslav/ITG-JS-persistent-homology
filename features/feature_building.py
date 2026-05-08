@@ -15,8 +15,8 @@ def compute_features_for_row(row, alpha=0.75, beta=1.0, lam=1.0, min_num_parts=4
           of part dictionaries.
         alpha (float, optional): parameter for the Bregman divergence. Defaults to 0.75.
     RETURN: tuple of two numpy.ndarrays or (None, None):
-            vec_orig (numpy.ndarray): 24‑dimensional vector for the original distance method.
-            vec_breg (numpy.ndarray): 24‑dimensional vector for the Bregman distance method.
+            vec_orig (numpy.ndarray): 24-dimensional vector for the original distance method.
+            vec_breg (numpy.ndarray): 24-dimensional vector for the Bregman distance method.
             If the piece has fewer than 4 parts, both return values are None.
     """
     parts = row.get('parts')
@@ -38,7 +38,7 @@ def compute_features_for_row(row, alpha=0.75, beta=1.0, lam=1.0, min_num_parts=4
         D_orig = compute_original_distance_matrix(vertices, edges)
         
         finite_vals = D_orig[np.isfinite(D_orig)]
-        D_orig[~np.isfinite(D_orig)] = 100 * (np.max(finite_vals) if len(finite_vals) > 0 else 1.0)
+        D_orig[~np.isfinite(D_orig)] = 1.1 * (np.max(finite_vals) if len(finite_vals) > 0 else 1.0)
         dgms_orig = compute_persistence(D_orig)
 
         # Bregman
@@ -48,7 +48,7 @@ def compute_features_for_row(row, alpha=0.75, beta=1.0, lam=1.0, min_num_parts=4
         D_br = compute_original_distance_matrix(vertices, edges_br)
 
         finite_vals = D_br[np.isfinite(D_br)]
-        D_br[~np.isfinite(D_br)] = 100 * (np.max(finite_vals) if len(finite_vals) > 0 else 1.0)
+        D_br[~np.isfinite(D_br)] = 1.1 * (np.max(finite_vals) if len(finite_vals) > 0 else 1.0)
         dgms_br = compute_persistence(D_br)
 
         for dim in [0, 1]:
@@ -64,8 +64,8 @@ def compute_features_for_row_js(row, js_scale=1.0, edge_eps=1e-6, min_num_parts=
           of part dictionaries.
         alpha (float, optional): parameter for the Bregman divergence. Defaults to 0.75.
     RETURN: tuple of two numpy.ndarrays or (None, None):
-            vec_orig (numpy.ndarray): 24‑dimensional vector for the original distance method.
-            vec_breg (numpy.ndarray): 24‑dimensional vector for the Bregman distance method.
+            vec_orig (numpy.ndarray): 24-dimensional vector for the original distance method.
+            vec_breg (numpy.ndarray): 24-dimensional vector for the Bregman distance method.
             If the piece has fewer than 4 parts, both return values are None.
     """
     parts = row.get('parts')
@@ -87,7 +87,7 @@ def compute_features_for_row_js(row, js_scale=1.0, edge_eps=1e-6, min_num_parts=
         D_orig = compute_original_distance_matrix(vertices, edges)
 
         finite_vals = D_orig[np.isfinite(D_orig)]
-        D_orig[~np.isfinite(D_orig)] = 100 * (np.max(finite_vals) if len(finite_vals) > 0 else 1.0)
+        D_orig[~np.isfinite(D_orig)] = 1.1 * (np.max(finite_vals) if len(finite_vals) > 0 else 1.0)
         dgms_orig = compute_persistence(D_orig)
 
         # Bregman
@@ -98,7 +98,7 @@ def compute_features_for_row_js(row, js_scale=1.0, edge_eps=1e-6, min_num_parts=
         )
         D_br = compute_original_distance_matrix(vertices, edges_br)
         finite_vals = D_br[np.isfinite(D_br)]
-        D_br[~np.isfinite(D_br)] = 100 * (np.max(finite_vals) if len(finite_vals) > 0 else 1.0)
+        D_br[~np.isfinite(D_br)] = 1.1 * (np.max(finite_vals) if len(finite_vals) > 0 else 1.0)
         dgms_br = compute_persistence(D_br)
 
         for dim in [0, 1]:

@@ -110,8 +110,8 @@ def experiment_3a(df_valid):
       ax3 = fig.add_subplot(2, 2, 3)
       ax4 = fig.add_subplot(2, 2, 4)
 
-      _plot_pca_and_dispersion_single_composer(X_orig, genre_labels, "Original method", ax1, ax3)
-      _plot_pca_and_dispersion_single_composer(X_breg, genre_labels, "Bregman-enhanced", ax2, ax4)
+      _plot_pca_and_dispersion_single_composer(X_orig, genre_labels, "Baseline method", ax1, ax3)
+      _plot_pca_and_dispersion_single_composer(X_breg, genre_labels, "Weighted_JS", ax2, ax4)
 
       plt.tight_layout(rect=[0, 0, 1, 0.96])
       plt.show()
@@ -156,8 +156,8 @@ def experiment_3b(df_valid):
           ax3 = fig.add_subplot(1, 4, 3)
           ax4 = fig.add_subplot(1, 4, 4)
 
-          _plot_single_genre_dispersion(X_orig, "Original method", ax1, ax3)
-          _plot_single_genre_dispersion(X_breg, "Bregman-enhanced", ax2, ax4)
+          _plot_single_genre_dispersion(X_orig, "Baseline method", ax1, ax3)
+          _plot_single_genre_dispersion(X_breg, "Weighted_JS", ax2, ax4)
 
           plt.tight_layout(rect=[0, 0, 1, 0.95])
           plt.show()

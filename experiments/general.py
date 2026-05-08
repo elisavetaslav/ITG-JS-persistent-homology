@@ -19,8 +19,8 @@ def experiment_2(df_valid):
   ax3 = fig.add_subplot(2, 2, 3)
   ax4 = fig.add_subplot(2, 2, 4)
 
-  plot_pca_and_dispersion(X_orig_all, "Original method", ax1, ax3, composers)
-  plot_pca_and_dispersion(X_breg_all, "Bregman-enhanced (α=1.0, β=1.0, λ=1.0)", ax2, ax4, composers)
+  plot_pca_and_dispersion(X_orig_all, "Baseline method", ax1, ax3, composers)
+  plot_pca_and_dispersion(X_breg_all, "Weighted_JS (α=1.0, β=1.0, λ=1.0)", ax2, ax4, composers)
 
   plt.tight_layout()
   plt.show()
