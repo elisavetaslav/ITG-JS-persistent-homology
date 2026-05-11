@@ -73,7 +73,10 @@ def normalize_durations(df, multiplier, apply_sqrt=False, inplace=False):
                 norm_durs = [math.sqrt(d * multiplier) for d in part['durations']]
             else:
                 norm_durs = [d * multiplier for d in part['durations']]
+
+            norm_onsets = [t * multiplier for t in part['onsets']]
             part['durations'] = norm_durs
+            part['onsets'] = norm_onsets
             part['transition_matrix'] = build_transition_matrix(
                 part['pitches'], part['durations'], part['onsets']
             )

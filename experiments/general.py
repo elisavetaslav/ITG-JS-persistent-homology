@@ -4,13 +4,13 @@ from analysis.comparisons import compare_methods
 from visualization.pca_dispersion import plot_pca_and_dispersion
 
 
-def experiment_2(df_valid):
+def experiment_2(df_valid, mod_col="features_js", method_name="Weighted_JS (α=1.0, β=1.0, λ=1.0)"):
   print("=== GENERAL ANALYSIS (all genres) ===")
   print(df_valid['composer'].value_counts())
   X_orig_all = np.stack(df_valid['features_orig'].values)
-  X_breg_all = np.stack(df_valid['features_breg'].values)
+  X_mod_all = np.stack(df_valid[mod_col].values)
   composers = df_valid['composer'].values
-  compare_methods(X_orig_all, X_breg_all, composers)
+  compare_methods(X_orig_all, X_mod_all, composers)
 
   fig = plt.figure(figsize=(14, 10))
 
@@ -20,9 +20,9 @@ def experiment_2(df_valid):
   ax4 = fig.add_subplot(2, 2, 4)
 
   plot_pca_and_dispersion(X_orig_all, "Baseline method", ax1, ax3, composers)
-  plot_pca_and_dispersion(X_breg_all, "Weighted_JS (α=1.0, β=1.0, λ=1.0)", ax2, ax4, composers)
+  plot_pca_and_dispersion(X_mod_all, method_name, ax2, ax4, composers)
 
   plt.tight_layout()
   plt.show()
 
-  return {'X_orig_all': X_orig_all, 'X_breg_all': X_breg_all, 'composers': composers}
+  return {'X_orig_all': X_orig_all, 'X_mod_all': X_mod_all, 'composers': composers}

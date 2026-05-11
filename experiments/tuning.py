@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from itertools import product
 from analysis.metrics import compute_baseline_metrics, compute_core_metrics
-from experiments.recompute import recompute_bregman_features
+from experiments.recompute import recompute_weighted_js_features
 
 
 def build_tuning_slices(df_valid):
@@ -71,7 +71,7 @@ def evaluate_hyperparameter_grid(df, alpha_grid, beta_grid, lam_grid):
     for alpha, beta, lam in product(alpha_grid, beta_grid, lam_grid):
         print(f"Running alpha={alpha}, beta={beta}, lam={lam} ...")
 
-        df_valid_param = recompute_bregman_features(df, alpha=alpha, beta=beta, lam=lam)
+        df_valid_param = recompute_weighted_js_features(df, alpha=alpha, beta=beta, lam=lam)
 
         for slice_name, meta in tuning_slices.items():
             sub = df_valid_param.loc[df_valid_param.index.intersection(meta['index'])].copy()
@@ -79,13 +79,13 @@ def evaluate_hyperparameter_grid(df, alpha_grid, beta_grid, lam_grid):
             if len(sub) < 3 or sub[meta['label_col']].nunique() < 2:
                 continue
 
-            X_breg = np.stack(sub['features_breg'].values)
+            X_mod = np.stack(sub['features_js'].values)
             labels = sub[meta['label_col']].values
 
-            breg_metrics = compute_core_metrics(X_breg, labels)
+            js_metrics = compute_core_metrics(X_mod, labels)
             base_metrics = baseline_dict[slice_name]
 
-            db_improvement = base_metrics['davies_bouldin'] - breg_metrics['davies_bouldin']
+            db_improvement = base_metrics['davies_bouldin'] - js_metrics['davies_bouldin']
 
             detail_rows.append({
                 'alpha': alpha,
@@ -94,24 +94,24 @@ def evaluate_hyperparameter_grid(df, alpha_grid, beta_grid, lam_grid):
                 'slice': slice_name,
 
                 'orig_explained_2': base_metrics['explained_2'],
-                'breg_explained_2': breg_metrics['explained_2'],
-                'delta_explained_2': breg_metrics['explained_2'] - base_metrics['explained_2'],
+                'breg_explained_2': js_metrics['explained_2'],
+                'delta_explained_2': js_metrics['explained_2'] - base_metrics['explained_2'],
 
                 'orig_silhouette_full': base_metrics['silhouette_full'],
-                'breg_silhouette_full': breg_metrics['silhouette_full'],
-                'delta_silhouette_full': breg_metrics['silhouette_full'] - base_metrics['silhouette_full'],
+                'breg_silhouette_full': js_metrics['silhouette_full'],
+                'delta_silhouette_full': js_metrics['silhouette_full'] - base_metrics['silhouette_full'],
 
                 'orig_silhouette_pca2': base_metrics['silhouette_pca2'],
-                'breg_silhouette_pca2': breg_metrics['silhouette_pca2'],
-                'delta_silhouette_pca2': breg_metrics['silhouette_pca2'] - base_metrics['silhouette_pca2'],
+                'breg_silhouette_pca2': js_metrics['silhouette_pca2'],
+                'delta_silhouette_pca2': js_metrics['silhouette_pca2'] - base_metrics['silhouette_pca2'],
 
                 'orig_davies_bouldin': base_metrics['davies_bouldin'],
-                'breg_davies_bouldin': breg_metrics['davies_bouldin'],
+                'breg_davies_bouldin': js_metrics['davies_bouldin'],
                 'db_improvement': db_improvement,  # positive = better
 
                 'orig_centroid_distance': base_metrics['mean_centroid_distance'],
-                'breg_centroid_distance': breg_metrics['mean_centroid_distance'],
-                'delta_centroid_distance': breg_metrics['mean_centroid_distance'] - base_metrics['mean_centroid_distance'],
+                'breg_centroid_distance': js_metrics['mean_centroid_distance'],
+                'delta_centroid_distance': js_metrics['mean_centroid_distance'] - base_metrics['mean_centroid_distance'],
             })
 
     detail_df = pd.DataFrame(detail_rows)

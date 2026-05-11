@@ -12,7 +12,7 @@ def compute_core_metrics(X, labels):
     X_sc = StandardScaler().fit_transform(X)
 
     pca = PCA(n_components=2)
-    X_pca = pca.fit_transform(X_sc)
+    X_pca = pca.fit_transform(X)
     explained_2 = pca.explained_variance_ratio_[:2].sum()
 
     unique_labels = np.unique(labels)
@@ -28,7 +28,7 @@ def compute_core_metrics(X, labels):
 
         centroids = {}
         for lab in unique_labels:
-            pts = X_sc[np.array(labels) == lab]
+            pts = X_pca[np.array(labels) == lab]
             centroids[lab] = pts.mean(axis=0)
 
         dists = []
@@ -64,7 +64,7 @@ def compute_baseline_metrics(df_valid, tuning_slices):
 
         baseline_rows.append({
             'slice': slice_name,
-            'method': 'Original',
+            'method': 'Baseline',
             **metrics
         })
 

@@ -4,10 +4,10 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import silhouette_score, davies_bouldin_score
 
 
-def compare_methods(X_orig, X_breg, composers):
+def compare_methods(X_base, X_mod, composers, method_name="Weighted_JS"):
     results = {}
 
-    for name, X in [("Baseline", X_orig), ("Weighted_JS", X_breg)]:
+    for name, X in [("Baseline", X_base), (method_name, X_mod)]:
         print(f"=== {name} ===")
 
         # 1. Explained variance
@@ -22,7 +22,7 @@ def compare_methods(X_orig, X_breg, composers):
         sil_full = silhouette_score(X_sc, composers)
         print(f"Silhouette (full space): {sil_full:.4f}")
 
-        # 3. Silhouette в PC2
+        # 3. Silhouette in PCA space
         X_pca2 = PCA(n_components=2).fit_transform(X)
         sil_pca = silhouette_score(X_pca2, composers)
         print(f"Silhouette (PC1+PC2): {sil_pca:.4f}")
@@ -66,9 +66,9 @@ def compare_methods(X_orig, X_breg, composers):
             'db': db,
         }
 
-    print(f"{'Metric':<20} {'Baseline':<12} {'Weighted_JS':<12} {'Diff':<10}")
+    print(f"{'Metric':<20} {'Baseline':<12} {method_name:<12} {'Diff':<10}")
     print("-"*54)
-    print(f"Explained PC1+PC2   {results['Baseline']['explained_2']:.4f}   {results['Weighted_JS']['explained_2']:.4f}   {results['Weighted_JS']['explained_2'] - results['Baseline']['explained_2']:+.4f}")
-    print(f"Silhouette (full)   {results['Baseline']['sil_full']:.4f}   {results['Weighted_JS']['sil_full']:.4f}   {results['Weighted_JS']['sil_full'] - results['Baseline']['sil_full']:+.4f}")
-    print(f"Silhouette (PCA2)   {results['Baseline']['sil_pca']:.4f}   {results['Weighted_JS']['sil_pca']:.4f}   {results['Weighted_JS']['sil_pca'] - results['Baseline']['sil_pca']:+.4f}")
-    print(f"Davies-Bouldin      {results['Baseline']['db']:.4f}   {results['Weighted_JS']['db']:.4f}   {results['Weighted_JS']['db'] - results['Baseline']['db']:+.4f}")
+    print(f"Explained PC1+PC2   {results['Baseline']['explained_2']:.4f}   {results[method_name]['explained_2']:.4f}   {results[method_name]['explained_2'] - results['Baseline']['explained_2']:+.4f}")
+    print(f"Silhouette (full)   {results['Baseline']['sil_full']:.4f}   {results[method_name]['sil_full']:.4f}   {results[method_name]['sil_full'] - results['Baseline']['sil_full']:+.4f}")
+    print(f"Silhouette (PCA2)   {results['Baseline']['sil_pca']:.4f}   {results[method_name]['sil_pca']:.4f}   {results[method_name]['sil_pca'] - results['Baseline']['sil_pca']:+.4f}")
+    print(f"Davies-Bouldin      {results['Baseline']['db']:.4f}   {results[method_name]['db']:.4f}   {results[method_name]['db'] - results['Baseline']['db']:+.4f}")

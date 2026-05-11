@@ -6,11 +6,8 @@ from sklearn.preprocessing import StandardScaler
 
 
 def _plot_single_genre_dispersion(X, title, ax_scatter, ax_disp):
-    scaler = StandardScaler()
-    X_sc = scaler.fit_transform(X)
-
     pca = PCA(n_components=2)
-    X_pca = pca.fit_transform(X_sc)
+    X_pca = pca.fit_transform(X)
 
     ax_scatter.scatter(X_pca[:, 0], X_pca[:, 1], c='skyblue', s=80, alpha=0.7)
     ax_scatter.set_title(f"{title}\nExplained: {pca.explained_variance_ratio_[:2].sum():.1%}")
@@ -18,13 +15,16 @@ def _plot_single_genre_dispersion(X, title, ax_scatter, ax_disp):
     ax_scatter.set_ylabel("PC2")
     ax_scatter.grid(True, alpha=0.3)
 
-    center = np.mean(X_pca, axis=0)
-    dists = np.linalg.norm(X_pca - center, axis=1)
-    rms = np.sqrt(np.mean(dists**2))
+    if len(X_pca) >= 2:
+        center = np.mean(X_pca, axis=0)
+        sq_dists = np.sum((X_pca - center) ** 2, axis=1)
+        disp = np.sqrt(np.sum(sq_dists) / (len(X_pca) - 1))
+    else:
+        disp = 0.0
 
-    ax_disp.bar([title], [rms], color='lightcoral')
-    ax_disp.set_title(f"Dispersion (RMS from centroid)")
-    ax_disp.set_ylabel("RMS")
+    ax_disp.bar([title], [disp], color='lightcoral')
+    ax_disp.set_title("Dispersion (PCA space)")
+    ax_disp.set_ylabel("Dispersion")
     ax_disp.grid(True, axis='y', alpha=0.3)
 
 
@@ -71,9 +71,14 @@ def _plot_pca_and_dispersion_single_composer(X, genre_labels, title, ax_scatter,
     ax_disp.tick_params(axis='x', rotation=30)
 
 
-def experiment_3a(df_valid):
+def experiment_3a(
+    df_valid,
+    mod_col="features_js",
+    method_name="Weighted_JS",
+    composers=['Haydn', 'Mozart', 'Beethoven']
+):
   results = {}
-  for comp in ['Haydn', 'Mozart', 'Beethoven']:
+  for comp in composers:
       print(f"\n=== {comp} — within each composer by genre ===")
       sub_comp = df_valid[df_valid['composer'] == comp].copy()
 
@@ -93,12 +98,12 @@ def experiment_3a(df_valid):
       sub_comp = sub_comp[sub_comp['genre'].isin(valid_genres)].copy()
 
       X_orig = np.stack(sub_comp['features_orig'].values)
-      X_breg = np.stack(sub_comp['features_breg'].values)
+      X_js = np.stack(sub_comp[mod_col].values)
       genre_labels = sub_comp['genre'].values
 
       results[comp] = {
             'X_orig': X_orig,
-            'X_breg': X_breg,
+            'X_js': X_js,
             'genre_labels': genre_labels
         }
 
@@ -111,7 +116,7 @@ def experiment_3a(df_valid):
       ax4 = fig.add_subplot(2, 2, 4)
 
       _plot_pca_and_dispersion_single_composer(X_orig, genre_labels, "Baseline method", ax1, ax3)
-      _plot_pca_and_dispersion_single_composer(X_breg, genre_labels, "Weighted_JS", ax2, ax4)
+      _plot_pca_and_dispersion_single_composer(X_js, genre_labels, method_name, ax2, ax4)
 
       plt.tight_layout(rect=[0, 0, 1, 0.96])
       plt.show()
@@ -119,9 +124,14 @@ def experiment_3a(df_valid):
   return results
 
 
-def experiment_3b(df_valid):
+def experiment_3b(
+    df_valid,
+    mod_col="features_js",
+    method_name="Weighted_JS",
+    composers=['Haydn', 'Mozart', 'Beethoven']
+):
   results = {}
-  for comp in ['Haydn', 'Mozart', 'Beethoven']:
+  for comp in composers:
       print(f"\n=== {comp} — within each composer by genre ===")
       sub_comp = df_valid[df_valid['composer'] == comp]
 
@@ -142,11 +152,11 @@ def experiment_3b(df_valid):
       for i, (gname, group) in enumerate(valid_genres, 1):
           print(f"    = Genre: {gname}")
           X_orig = np.stack(group['features_orig'])
-          X_breg = np.stack(group['features_breg'])
+          X_js = np.stack(group[mod_col])
 
           results[f"{comp}_{gname}"] = {
               'X_orig': X_orig,
-              'X_breg': X_breg
+              'X_js': X_js
           }
           fig = plt.figure(figsize=(14, 6))
           fig.suptitle(f"{comp} — {gname} ({len(group)} comp.)", fontsize=14, y=1.02)
@@ -157,7 +167,7 @@ def experiment_3b(df_valid):
           ax4 = fig.add_subplot(1, 4, 4)
 
           _plot_single_genre_dispersion(X_orig, "Baseline method", ax1, ax3)
-          _plot_single_genre_dispersion(X_breg, "Weighted_JS", ax2, ax4)
+          _plot_single_genre_dispersion(X_js, method_name, ax2, ax4)
 
           plt.tight_layout(rect=[0, 0, 1, 0.95])
           plt.show()

@@ -4,8 +4,8 @@ from .distributions import assign_distributions
 from .graph_construction import (
     build_expanded_graph,
     compute_original_distance_matrix,
-    compute_bregman_edge_lengths,
-    compute_pure_semantic_edge_lengths
+    compute_weighted_js_edge_lengths,
+    compute_pure_js_edge_lengths
 )
 from .persistence import compute_persistence, extract_barcode_stats
 from .feature_building import compute_features_for_row, compute_features_for_row_js
@@ -16,9 +16,9 @@ __all__ = [
     'assign_distributions',
     'build_expanded_graph',
     'compute_original_distance_matrix',
-    'compute_bregman_edge_lengths',
+    'compute_weighted_js_edge_lengths',
     'compute_distance_matrix',
-    'compute_pure_semantic_edge_lengths',
+    'compute_pure_js_edge_lengths',
     'compute_persistence',
     'extract_barcode_stats',
     'compute_features_for_row',

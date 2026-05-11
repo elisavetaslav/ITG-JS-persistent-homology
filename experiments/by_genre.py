@@ -4,33 +4,40 @@ from analysis.comparisons import compare_methods
 from visualization.pca_dispersion import plot_pca_and_dispersion
 
 
-def run_genre_experiment(genre_name, df_valid):
+def run_genre_experiment(genre_name, df_valid, mod_col="features_js", method_name="Weighted_JS"):
     sub = df_valid[df_valid['genre'].str.lower() == genre_name.lower()].copy()
 
+    if len(sub) == 0:
+        print(f"\n=== GENRE: {genre_name} (0) ===")
+        print("No data for this genre.")
+        return None, None, None
+
     X_orig = np.stack(sub['features_orig'])
-    X_breg = np.stack(sub['features_breg'])
+    X_mod = np.stack(sub[mod_col].values)
     composers = sub['composer'].values
 
     print(f"\n=== GENRE: {genre_name} ({len(sub)}) ===")
-    compare_methods(X_orig, X_breg, composers)
-    return X_orig, X_breg, composers
+    compare_methods(X_orig, X_mod, composers, method_name=method_name)
+    return X_orig, X_mod, composers
 
 
 def experiment_1(
     df_valid,
-    genres=("Minuet", "Allegro", "Adagio")
+    genres=("Minuet", "Allegro", "Adagio"),
+    mod_col="features_js",
+    method_name="Weighted_JS"
 ):
     """
     Runs Experiment 1: comparison of composers within the same genre.
     INPUT:
         df_valid (pd.DataFrame): DataFrame with columns
-            'features_orig', 'features_breg', 'composer', 'genre'.
+            'features_orig', 'features_js', 'composer', 'genre'.
         genres (tuple/list): genres to analyze.
     OUTPUT:
         results (dict): dictionary of the form
             results[genre] = {
                 'X_orig': ...,
-                'X_breg': ...,
+                'X_mod': ...,
                 'composers': ...
             }
         Genres with no valid data are skipped.
@@ -38,14 +45,14 @@ def experiment_1(
     results = {}
 
     for genre_name in genres:
-        X_orig, X_breg, composers = run_genre_experiment(genre_name, df_valid)
+        X_orig, X_mod, composers = run_genre_experiment(genre_name, df_valid, mod_col, method_name)
 
         if X_orig is None:
             continue
 
         results[genre_name] = {
             'X_orig': X_orig,
-            'X_breg': X_breg,
+            'X_mod': X_mod,
             'composers': composers
         }
 
@@ -63,8 +70,8 @@ def experiment_1(
             composers
         )
         plot_pca_and_dispersion(
-            X_breg,
-            f"{genre_name.upper()}: Weighted_JS",
+            X_mod,
+            f"{genre_name.upper()}: {method_name}",
             ax2, ax4,
             composers
         )

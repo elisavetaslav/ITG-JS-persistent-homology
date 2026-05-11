@@ -22,6 +22,7 @@ def run_small_dataset_pipeline(
     plot_title_suffix="",
     scale=False,
     composer_order=['Haydn', 'Mozart', 'Beethoven'],
+    method_name=None, 
     figsize=(14, 10)
 ):
     """
@@ -34,13 +35,14 @@ def run_small_dataset_pipeline(
     apply_sqrt : bool - Passed into normalize_durations.
     use_pure_js : bool
         If True, uses pure JS version inside compute_features_for_row.
-        Otherwise uses mixed Bregman version with alpha, beta, lam.
+        Otherwise use the weighted-JS rule with alpha, beta, lam.
     js_scale : float - Scale parameter for pure JS version.
     edge_eps : float - Numerical epsilon for pure JS version.
-    alpha, beta, lam : float - Hyperparameters for mixed Bregman version.
+    alpha, beta, lam : float - Hyperparameters for the weighted-JS version.
     plot_title_suffix : str - Optional text to append to titles.
+    method_name : str or None - Label for the modified method. If None, chosen automatically.
     figsize : tuple - Figure size for the final 2x2 plot.
-    OUTPUT: dict with df_valid, X_orig, X_breg, composers
+    OUTPUT: dict with df_valid, X_orig, X_mod, composers
     """
     df_work = df_small.copy()
 
@@ -57,36 +59,37 @@ def run_small_dataset_pipeline(
 
     # 3. Recompute features
     df_work['features_orig'] = None
-    df_work['features_breg'] = None
+    df_work['features_js'] = None
 
     for idx, row in df_work.iterrows():
         if use_pure_js:
             vec_o, vec_b = compute_features_for_row_js(row, js_scale=js_scale, edge_eps=edge_eps, min_num_parts=min_num_parts)
         else:
-            vec_o, vec_b = compute_features_for_row(row, use_pure_js=False, alpha=alpha, beta=beta, lam=lam, min_num_parts=min_num_parts)
+            vec_o, vec_b = compute_features_for_row(row, alpha=alpha, beta=beta, lam=lam, min_num_parts=min_num_parts)
 
         if vec_o is not None:
             df_work.at[idx, 'features_orig'] = vec_o
-            df_work.at[idx, 'features_breg'] = vec_b
+            df_work.at[idx, 'features_js'] = vec_b
 
-    df_valid = df_work.dropna(subset=['features_orig', 'features_breg']).copy()
+    df_valid = df_work.dropna(subset=['features_orig', 'features_js']).copy()
     print(f"Successfully processed: {len(df_valid)} / {len(df_work)}")
 
     # 4. Prepare matrices
     X_orig = np.stack(df_valid['features_orig'].values)
-    X_breg = np.stack(df_valid['features_breg'].values)
+    X_mod = np.stack(df_valid['features_js'].values)
     composers = df_valid['composer'].values
 
     # 5. Print numeric comparison
     print("\n=== SMALL DATASET ANALYSIS ===")
     print(df_valid['composer'].value_counts())
-    compare_methods(X_orig, X_breg, composers)
+    if method_name is None:
+        method_name = "Pure_JS" if use_pure_js else "Weighted_JS"
+    compare_methods(X_orig, X_mod, composers, method_name=method_name)
 
     # 6. Plot PCA + dispersion
-    if use_pure_js:
-        breg_label = f"JS-enhanced{plot_title_suffix}"
-    else:
-        breg_label = f"Bregman-enhanced (α={alpha}, β={beta}, λ={lam}){plot_title_suffix}"
+    if not(use_pure_js):
+        plot_title_suffix = f' (α={alpha}, β={beta}, λ={lam})' + plot_title_suffix
+    label = f"{method_name}{plot_title_suffix}"
 
     fig = plt.figure(figsize=figsize)
 
@@ -95,8 +98,8 @@ def run_small_dataset_pipeline(
     ax3 = fig.add_subplot(2, 2, 3)
     ax4 = fig.add_subplot(2, 2, 4)
 
-    plot_pca_and_dispersion(X_orig, f"Original method{plot_title_suffix}", ax1, ax3, composers, scale=scale, composer_order=composer_order)
-    plot_pca_and_dispersion(X_breg, breg_label, ax2, ax4, composers, scale=scale, composer_order=composer_order)
+    plot_pca_and_dispersion(X_orig, f"Baseline method{plot_title_suffix}", ax1, ax3, composers, scale=scale, composer_order=composer_order)
+    plot_pca_and_dispersion(X_mod, label, ax2, ax4, composers, scale=scale, composer_order=composer_order)
 
     plt.tight_layout()
     plt.show()
@@ -104,6 +107,6 @@ def run_small_dataset_pipeline(
     return {
         'df_valid': df_valid,
         'X_orig': X_orig,
-        'X_breg': X_breg,
+        'X_mod': X_mod,
         'composers': composers
     }

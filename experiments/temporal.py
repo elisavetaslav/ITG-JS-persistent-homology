@@ -19,22 +19,22 @@ def _add_pca_columns(df, features_col, prefix, use_scaling=True):
     return df, explained
 
 
-def experiment_4(df_valid):
+def experiment_4(df_valid, mod_col="features_js", method_name="Weighted_JS"):
     df_plot = df_valid.copy()
     df_plot['year'] = pd.to_numeric(df_plot['date'].astype(str).str.split('-').str[0], errors='coerce')
     df_plot = df_plot.dropna(subset=['year']).copy()
 
     df_plot, orig_explained = _add_pca_columns(df_plot, 'features_orig', 'orig', use_scaling=False)
-    df_plot, breg_explained = _add_pca_columns(df_plot, 'features_breg', 'breg', use_scaling=False)
+    df_plot, js_explained = _add_pca_columns(df_plot, mod_col, 'js', use_scaling=False)
 
     fig, axes = plt.subplots(2, 2, figsize=(16, 10))
-    fig.suptitle("Experiment 4: Evolution of style by dates (140 works)", fontsize=16, y=1.02)
+    fig.suptitle("Experiment 4: Evolution of style by dates", fontsize=16, y=1.02)
 
     colors = {'Haydn': '#d62728', 'Mozart': '#1f77b4', 'Beethoven': '#2ca02c'}
 
-    for i, method in enumerate(['orig', 'breg']):
+    for i, method in enumerate(['orig', 'js']):
         prefix = method
-        label = "Baseline method" if method == 'orig' else "Weighted_JS"
+        label = "Baseline method" if method == 'orig' else method_name
         ax = axes[0, i]
         for comp in ['Haydn', 'Mozart', 'Beethoven']:
             sub = df_plot[df_plot['composer'] == comp].sort_values('year')
@@ -47,7 +47,7 @@ def experiment_4(df_valid):
 
         ax.set_xlabel("Year")
         ax.set_ylabel("PC1 score")
-        explained_val = orig_explained if prefix == 'orig' else breg_explained
+        explained_val = orig_explained if prefix == 'orig' else js_explained
         ax.set_title(f"PC1 evolution — {label}\nExplained: {explained_val:.1%}")
         ax.grid(True, alpha=0.3)
         ax.legend(title="Composer")

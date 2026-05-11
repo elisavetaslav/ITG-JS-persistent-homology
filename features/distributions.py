@@ -1,17 +1,17 @@
 import numpy as np
 
 
-def assign_distributions(vertices, vertex_map, P, eps=1e-8):
-    """ Assign probability distributions and vertex masses for the expanded graph.
-    INPUT: vertices: list[int] – all vertex IDs (original + added)
-           vertex_map: dict {(i,j): new_id}
-           P: 12x12 numpy array (globally normalized transition matrix)
-           eps: Dirichlet smoothing parameter
-    OUTPUT: dist_dict: dict {vertex_id: probability distribution (length 12)}
-            mass_dict: dict {vertex_id: scalar mass alpha}
-    Probability distributions and masses are assigned only to the original
-    vertices 0,...,11. Added vertices of the expanded graph are treated as
-    transition labels and do not receive independent probability distributions.
+def assign_distributions(P, eps=1e-8):
+    """
+    Assign smoothed conditional transition distributions and vertex masses to the original pitch-class vertices.
+    INPUT:
+        P: 12x12 numpy array (globally normalized transition matrix)
+        eps: Dirichlet smoothing parameter
+    OUTPUT:
+        dist_dict: dict {vertex_id: probability distribution (length 12)}
+        mass_dict: dict {vertex_id: scalar mass}
+    Only the original pitch-class vertices 0,...,11 receive probability distributions and masses.
+    Auxiliary vertices of the expanded graph do not receive independent distributions.
     """
     n = 12
     dist_dict = {}

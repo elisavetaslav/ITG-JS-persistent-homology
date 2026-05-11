@@ -11,10 +11,10 @@ def build_transition_matrix(pitches, durations, onsets):
     distribution over transition pairs, following the construction
     used in Mijangos et al. (2022).)
 
-    INPUT: pitches (list[int])      – pitch classes (0–11)
-           durations (list[float])  – durations (quarterLength)
-           onsets (list[float])     – onset positions (quarterLength)
-    RETURN: P (np.ndarray shape (12,12)) – normalized transition matrix
+    INPUT: pitches (list[int])      - pitch classes (0-11)
+           durations (list[float])  - durations (quarterLength)
+           onsets (list[float])     - onset positions (quarterLength)
+    RETURN: P (np.ndarray shape (12,12)) - normalized transition matrix
             None if fewer than 2 notes
     """
     if len(pitches) < 2:

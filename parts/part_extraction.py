@@ -5,9 +5,9 @@ from music21 import converter
 def extract_part_sequence(part):
     """Extract pitch classes, durations, and onset positions from a single part.
     INPUT: part (music21.stream.Part)
-    RETURN: pitches (list[int])      – pitch classes (0–11) in order of appearance
-            durations (list[float])  – durations in quarterLength units
-            onsets (list[float])     – onset positions (quarterLength offsets)
+    RETURN: pitches (list[int])      - pitch classes (0-11) in order of appearance
+            durations (list[float])  - durations in quarterLength units
+            onsets (list[float])     - onset positions (quarterLength offsets)
     """
     pitches = []
     durations = []
@@ -28,7 +28,7 @@ def extract_part_sequence(part):
 
 def process_midi_file(midi_path):
     """Processes a single MIDI file (assumed to be a string quartet).
-    INPUT: midi_path (str) – full path to the .mid file.
+    INPUT: midi_path (str) - full path to the .mid file.
     RETURN: list of dicts for each part (first 4 parts), each dict contains:
             'part_index', 'num_notes', 'pitches', 'durations', 'transition_matrix'.
             Returns None if parsing fails or fewer than 4 parts.

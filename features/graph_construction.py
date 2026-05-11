@@ -32,7 +32,8 @@ def build_expanded_graph(P, min_weight=0.0, return_edges=True, n_orig = 12):
                     # loop: single edge from i to new vertex, length = 1/w
                     edges.append((i, new_id, 1.0 / w))
                 else:
-                    # two edges: i - new and new - j, each length = 1/2w (unlike in original method 2/w)
+                    # two half-edges: i - v_ij and v_ij - j, each of length 1/(2w),
+                    # so that the total direct-path cost equals 1/w
                     length = 1.0 / (2.0 * w)
                     edges.append((i, new_id, length))
                     edges.append((new_id, j, length))
@@ -44,7 +45,7 @@ def build_expanded_graph(P, min_weight=0.0, return_edges=True, n_orig = 12):
 def compute_original_distance_matrix(vertices, edges):
     """Computes pairwise shortest-path distances in the undirected weighted graph.
     INPUT: vertices: list of int, all vertex IDs
-           edges: list of tuples (u, v, length) – undirected edges with positive lengths
+           edges: list of tuples (u, v, length) - undirected edges with positive lengths
     OUTPUT: D - numpy array of shape (n, n) with distances (inf if disconnected)
     """
     n = len(vertices)
@@ -59,25 +60,25 @@ def compute_original_distance_matrix(vertices, edges):
     return D_short
 
 
-def compute_bregman_edge_lengths(
+def compute_weighted_js_edge_lengths(
     vertices, vertex_map, P, dist_dict, mass_dict,
     alpha=0.7, beta=1.0, lam=0.25,
     eps=1e-10, min_weight=1e-8, loop_multiplier=1.0
 ):
-    """Recomputes edge lengths in the expanded graph using weighted Jensen-Shannon distance
-    combined with transition probability rarity.
-    INPUT: vertices: list[int] – all vertex IDs (original 0–11 + added)
-           vertex_map: dict {(i,j): new_id} – mapping from directed edge to added vertex ID
-           P: np.ndarray (12,12) – transition probability matrix
-           dist_dict: dict {vertex_id: np.array(12)} – probability distributions per original vertex
-           mass_dict: dict {vertex_id: float} – vertex masses for original vertices
-           alpha: float – exponent for rarity penalty (w ** alpha), typical range 0.3–1.0
-           beta: float – strength of the Jensen-Shannon correction
-           lam: float – additive baseline term used only in 'js_additive' mode
-           eps: float – small value for numerical stability (default 1e-10)
-           min_weight: float – ignore transitions with P[i,j] <= min_weight
-           loop_multiplier: float – scaling factor for self-loop edge lengths (default 1.0)
-    OUTPUT: edges: list of tuples (u, v, new_length) – undirected edges with updated Bregman-based lengths
+    """Recompute edge lengths in the expanded graph using the weighted Jensen-Shannon rule
+    combined with transition rarity.
+    INPUT: vertices: list[int] - all vertex IDs (original 0-11 + added)
+           vertex_map: dict {(i,j): new_id} - mapping from directed edge to added vertex ID
+           P: np.ndarray (12,12) - transition probability matrix
+           dist_dict: dict {vertex_id: np.array(12)} - probability distributions per original vertex
+           mass_dict: dict {vertex_id: float} - vertex masses for original vertices
+           alpha: float - exponent for rarity penalty (w ** alpha), typical range 0.3-1.0
+           beta: float - strength of the Jensen-Shannon correction
+           lam: float - additive baseline term used only in 'js_additive' mode
+           eps: float - small value for numerical stability (default 1e-10)
+           min_weight: float - ignore transitions with P[i,j] <= min_weight
+           loop_multiplier: float - scaling factor for self-loop edge lengths (default 1.0)
+    OUTPUT: edges: list of tuples (u, v, new_length) - undirected edges with updated weighted-JS lengths
     """
     edges = []
 
@@ -102,7 +103,7 @@ def compute_bregman_edge_lengths(
     return edges
 
 
-def compute_pure_semantic_edge_lengths(
+def compute_pure_js_edge_lengths(
     vertices, vertex_map, P, dist_dict, mass_dict,
     js_scale=1.0, eps=1e-6, min_weight=1e-8
 ):
