@@ -9,7 +9,7 @@ def plot_barcodes(dgms, title="Persistence Barcodes", colors=None):
     fig, axes = plt.subplots(1, 2, figsize=(12, 6), sharey=True)
 
     for dim, ax in enumerate(axes):
-        dgm = dgms[dim].copy()
+        dgm = np.asarray(dgms[dim], dtype=float).copy()
         finite_mask = np.isfinite(dgm[:, 1])
         dgm = dgm[finite_mask]
 

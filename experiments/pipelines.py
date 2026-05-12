@@ -10,7 +10,7 @@ from features.feature_building import compute_features_for_row
 
 def run_all_experiments_pipeline(df, alpha=1.0, beta=1.0, lam=1.0,
     genres=("Minuet", "Allegro", "Adagio"), verbose=True, method_name=None,
-    run_exp1=True, run_exp2=True, run_exp3a=True, run_exp3b=True, run_exp4=True,
+    run_exp1=True, run_exp2=True, run_exp3a=True, run_exp3b=True, run_exp4=True
 ):
     """
     Recompute features for the given hyperparameters and run all experiments.
