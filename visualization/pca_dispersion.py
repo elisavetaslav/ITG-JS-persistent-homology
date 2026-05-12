@@ -24,16 +24,29 @@ def plot_pca_and_dispersion(X, title, ax_scatter, ax_disp, composers, scale=Fals
 
     for comp in unique_comp:
         mask = composers == comp
-        ax_scatter.scatter(
-            X_pca[mask, 0], X_pca[mask, 1],
-            color=color_map[comp], s=80, label=comp, alpha=0.9
-        )
+        if len(unique_comp) <= 3:
+            ax_scatter.scatter(
+                X_pca[mask, 0], X_pca[mask, 1],
+                color=color_map[comp], s=80, label=comp, alpha=0.9
+            )
+        else:
+            ax_scatter.scatter(
+                X_pca[mask, 0], X_pca[mask, 1],
+                color=color_map[comp], s=40, label=comp, alpha=0.7
+            )
 
     ax_scatter.set_title(f"{title}\nExplained: {pca.explained_variance_ratio_[:2].sum():.1%}")
     ax_scatter.set_xlabel("PC1")
     ax_scatter.set_ylabel("PC2")
     ax_scatter.grid(True, alpha=0.3)
-    ax_scatter.legend(title="Composer")
+    if len(unique_comp) > 3:
+        ax_scatter.legend(
+            title="Composer", fontsize='small', title_fontsize='small', loc='center left',
+            bbox_to_anchor=(1, 0.5), markerscale=0.8, frameon=True
+        )
+        plt.subplots_adjust(hspace=0.35, wspace=0.25)
+    else:
+        ax_scatter.legend(title="Composer")
 
     # Dispersion in PCA space, with denominator (n-1), as in their scripts
     disp_values = []
@@ -51,3 +64,8 @@ def plot_pca_and_dispersion(X, title, ax_scatter, ax_disp, composers, scale=Fals
     ax_disp.set_title(f"Dispersion ({title}, PCA space)")
     ax_disp.set_ylabel("Dispersion")
     ax_disp.grid(True, axis='y', alpha=0.3)
+
+    if len(disp_values) > 3:
+        comp_names = [c[0] for c in disp_values]
+        ax_disp.set_xticks(range(len(comp_names)))
+        ax_disp.set_xticklabels(comp_names, rotation=90, fontsize=8)
